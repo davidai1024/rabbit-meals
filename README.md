@@ -4,7 +4,7 @@
 
 **一人点菜，一人掌勺。把「下周吃什么」变成两个人的小期待。**
 
-[![Tests](https://github.com/davidai1024/rabbit-meals/actions/workflows/test.yml/badge.svg)](https://github.com/davidai1024/rabbit-meals/actions/workflows/test.yml)
+[![Tests](https://github.com/davidai1024/rabbit-meals/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/davidai1024/rabbit-meals/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-6A8057?style=flat-square)](LICENSE)
 ![WeChat Mini Program](https://img.shields.io/badge/WeChat-Mini_Program-07C160?style=flat-square)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Native-D8A24B?style=flat-square)

@@ -1,0 +1,7 @@
+@import "../../compact-ui.wxss";@import "../../product-polish.wxss";
+.ordered-menu-page .detail-topbar{display:flex;align-items:center;justify-content:space-between;gap:16rpx}
+.ordered-menu-page .detail-topbar button{width:auto;min-width:0;min-height:44px;max-width:none;margin:0;padding:12rpx 18rpx;font-size:24rpx;line-height:1.5;flex:0 0 auto}
+.ordered-menu-page .history-line>.row{display:flex;align-items:flex-start;gap:16rpx}
+.ordered-menu-page .history-line .grow{flex:1;min-width:0}
+.ordered-menu-page .history-line .heading{font-size:28rpx;line-height:1.5;word-break:break-word}
+.ordered-menu-page .history-line .dish-review{flex:none;width:auto;min-width:100rpx;max-width:140rpx;min-height:44px;margin:0;padding:12rpx 16rpx;font-size:24rpx;line-height:1.5;border-radius:20rpx;box-sizing:border-box}

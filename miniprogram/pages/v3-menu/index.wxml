@@ -1,0 +1,162 @@
+<page-meta page-style="{{!pageReady || editing || chooseRole || tip ? 'overflow:hidden;' : ''}}"/>
+<import src="../../templates/page-loading.wxml"/>
+<template wx:if="{{!pageReady}}" is="page-loading" data="{{loading:pageLoading,error:pageLoadError}}"/>
+<block wx:if="{{pageReady}}">
+<view wx:if="{{cookSync.phase==='error' || cookSync.phase==='conflict'}}" class="draft-sync-banner" aria-live="polite">
+  <view class="draft-sync-copy"><text>制作进度尚未同步，已保留在本机</text><text class="caption">{{cookSync.error}}</text></view>
+  <button wx:if="{{cookSync.canRetry}}" class="sync-retry" bindtap="retryCook">重试</button>
+  <button wx:if="{{cookSync.phase==='conflict'}}" class="sync-retry" bindtap="resolveCookConflict">重新载入</button>
+</view>
+<view class="order-shell browse-order {{viewMode==='list'?'is-list':'is-card'}} {{total?'has-cart-items':''}} {{draftSync.phase==='error' || draftSync.phase==='conflict'?'sync-visible':''}}">
+  <image class="order-doodle doodle-rabbit" src="/assets/rabbit-avatar.svg" mode="aspectFit" aria-hidden="true"/>
+  <image class="order-doodle doodle-food" src="/assets/decor.svg" mode="aspectFit" aria-hidden="true"/>
+  <image class="order-doodle doodle-food-top" src="/assets/decor.svg" mode="aspectFit" aria-hidden="true"/>
+  <image class="order-doodle doodle-rabbit-side" src="/assets/rabbit-avatar.svg" mode="aspectFit" aria-hidden="true"/>
+  <view class="v3-head browse-head compact-head">
+    <view class="compact-top product-top">
+      <button class="identity-trigger" style="margin:0;justify-content:flex-start;" bindtap="switchIdentity" aria-label="当前{{roleLabel}}身份，点击切换">
+        <image src="/assets/rabbit-avatar.svg"/><text>{{roleLabel}}</text>
+      </button>
+      <view class="top-actions">
+        <button class="view-toggle" bindtap="toggleView" aria-label="{{viewMode==='card'?'切换为列表视图':'切换为卡片视图'}}"><image src="{{viewMode==='card'?'/assets/view-list.svg':'/assets/view-card.svg'}}"/></button>
+        <button class="compact-purpose" bindtap="openPurpose" aria-label="切换餐单，当前{{type==='next'?'下周饭':(weekDay===period.sat?'周六':'周日')+weekMeal}}" aria-expanded="{{editing.form==='purpose'}}">
+          <image class="purpose-icon" src="/assets/solid-plate-coral.svg"/>{{type==='next'?'下周饭':(weekDay===period.sat?'周六':'周日')+weekMeal}}<text class="purpose-chevron">⌄</text>
+        </button>
+      </view>
+    </view>
+    <view wx:if="{{orderNotice.visible && (!editingDraft || orderNotice.locked)}}" class="order-notice {{orderNotice.locked?'is-locked':''}}">
+      <text>{{orderNotice.text}}</text><button bindtap="viewOrderedMenu">查看已点 ›</button>
+    </view>
+    <view wx:if="{{editingDraft && !menuLocked}}" class="editing-order-note">
+      <text>换菜时间！改好后重新提交给大厨。</text><button bindtap="cancelOrderEdit" disabled="{{busy}}">取消修改</button>
+    </view>
+    <view wx:if="{{submissionNote}}" class="order-submission-note" aria-live="polite">{{submissionNote}}</view>
+    <scroll-view wx:if="{{viewMode==='card'}}" class="category-tabs-scroll" scroll-x="{{true}}" show-scrollbar="{{false}}" scroll-into-view="category-{{category}}">
+      <view class="category-tabs-track"><button wx:for="{{categories}}" wx:key="*this" id="category-{{item}}" class="compact-tab {{category===item?'active':''}}" data-value="{{item}}" bindtap="category">{{item}}</button></view>
+    </scroll-view>
+    <button class="tip-link" wx:if="{{unavailableNotice}}" data-title="已选菜品需要调整" data-content="{{unavailableNotice}}" bindtap="tipInfo">已选菜品需要调整 ›</button>
+  </view>
+  <scroll-view wx:if="{{viewMode==='card'}}" class="browse-card-scroll" scroll-y="{{!editing && !chooseRole && !tip}}" show-scrollbar="{{false}}">
+    <swiper wx:if="{{card}}" class="browse-carousel" current="{{cardIndex}}" previous-margin="24rpx" next-margin="24rpx" duration="280" bindchange="carouselChange">
+      <swiper-item wx:for="{{carouselCards}}" wx:key="id">
+        <view class="browse-card" data-card-id="{{item.id}}">
+          <view class="browse-card-meta"><view><text>{{index+1}}</text> / {{queueLeft}}</view><text class="browse-kind">{{item.category}}</text></view>
+          <view class="browse-photo-frame">
+            <image wx:if="{{item.image}}" class="browse-photo" src="{{item.image}}" mode="aspectFill" aria-label="{{item.name}}"/>
+            <image wx:else class="browse-photo fallback" src="/assets/rabbit-avatar.svg" mode="aspectFit"/>
+          </view>
+          <view class="browse-info">
+            <view class="browse-name">{{item.name}}</view>
+            <view class="browse-tags"><text>{{item.taste||'家常味道'}}</text><text>够吃3顿</text></view>
+            <view class="browse-card-actions">
+              <button class="browse-favorite" data-id="{{item.id}}" bindtap="favorite" aria-label="{{item.favorite?'取消收藏':'收藏'}}{{item.name}}"><image src="{{item.favorite?'/assets/favorite-heart-filled.svg':'/assets/favorite-heart-outline.svg'}}"/></button>
+              <button class="browse-pick" data-id="{{item.id}}" bindtap="pickDish" disabled="{{busy || menuLocked}}">选这道</button>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+    <view wx:else class="browse-empty">
+      <image src="/assets/rabbit-avatar.svg"/>
+      <view class="heading">{{allDone?'三荤三素，挑齐了':'这里暂时没有待选菜'}}</view>
+      <view class="caption">{{allDone?'打开购物车，确认后交给大厨。':'可以换个分类继续挑。'}}</view>
+      <button class="secondary" bindtap="basket">查看购物车</button>
+      <button class="text-action" data-value="全部" bindtap="category">看看全部菜品</button>
+      <button class="text-action" bindtap="request">想吃新菜</button>
+    </view>
+  </scroll-view>
+  <view wx:if="{{viewMode==='list'}}" class="browse-list-layout">
+    <view class="browse-rail"><button wx:for="{{categories}}" wx:key="*this" class="{{category===item?'active':''}}" data-value="{{item}}" bindtap="category">{{item}}</button></view>
+    <scroll-view class="dish-scroll browse-list" scroll-y="{{!editing && !chooseRole && !tip}}" show-scrollbar="{{false}}" data-scroll-key="{{type+'|'+category+'|'+query}}">
+      <view wx:for="{{filtered}}" wx:key="id" class="browse-row" id="dish-{{item.id}}">
+        <image class="browse-list-photo" src="{{item.image}}" mode="aspectFill" aria-label="{{item.name}}"/>
+        <view class="browse-row-copy">
+          <view class="browse-row-name">{{item.name}}</view><view class="browse-row-taste">{{item.taste||item.category}}</view>
+          <view class="browse-row-actions">
+            <button class="browse-favorite" data-id="{{item.id}}" bindtap="favorite" aria-label="{{item.favorite?'取消收藏':'收藏'}}{{item.name}}"><image src="{{item.favorite?'/assets/favorite-heart-filled.svg':'/assets/favorite-heart-outline.svg'}}"/></button>
+            <button class="browse-list-pick {{item.selected?'selected':''}}" data-id="{{item.id}}" bindtap="pickDish" disabled="{{busy || menuLocked}}" aria-label="{{item.selected?'取消选择':'选择'}}{{item.name}}">
+              <text class="pick-symbol" aria-hidden="true">{{item.selected?'✓':'＋'}}</text><text>{{item.selected?'已选':'选这道'}}</text>
+            </button>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{!filtered.length}}" class="browse-empty"><view class="heading">没有找到这道菜</view><view class="caption">试试其他分类</view><button class="text-action" bindtap="request">想吃新菜</button></view>
+      <view class="browse-list-note">菜品参考图 · 以实际烹饪为准</view>
+      <button class="text-action" bindtap="undoSwipe" disabled="{{!canUndo || menuLocked}}">撤销上次选择</button>
+    </scroll-view>
+  </view>
+</view>
+<view wx:if="{{total || draftSync.phase==='error' || draftSync.phase==='conflict'}}" class="order-cart swipe-cart order-submit-cart browse-cart {{basketPulse?'basket-pop':''}}">
+  <button class="selected-strip" wx:if="{{selectedThumbs.length}}" bindtap="basket" aria-label="查看已选{{total}}道菜">
+    <view class="selected-photos"><view wx:for="{{selectedThumbs}}" wx:key="id" class="selected-mini"><image src="{{item.image}}" mode="aspectFill"/></view></view>
+    <text class="selected-hint">已选 {{total}} 道 ›</text>
+  </button>
+  <button wx:if="{{total}}" class="basket-link" bindtap="basket" aria-label="查看已选菜品">
+    <view class="basket-symbol"><image src="/assets/solid-shop-coral.svg"/><text class="basket-count">{{total}}</text></view>
+    <view class="basket-copy"><view class="heading">{{type==='next'?'荤 '+counts.meat+'/3 · 素 '+counts.veg+'/3':'已选 '+total+' 道菜'}}</view><view class="caption">{{status}} · 查看</view></view>
+  </button>
+  <button wx:if="{{total}}" class="cart-button" loading="{{busy}}" disabled="{{busy}}" bindtap="cartAction">{{menuLocked?'查看':busy?'…':editingDraft?'重新提交':actionLabel}}</button>
+  <view wx:if="{{draftSync.phase==='error' || draftSync.phase==='conflict'}}" class="draft-sync sync-warning" aria-live="polite">
+    <text>{{draftSync.phase==='conflict'?(menuLocked?'菜单已锁定，请重新载入':'菜单有更新，选择已保留'):'同步未完成，选择已保留'}}</text>
+    <button wx:if="{{draftSync.canRetry && !menuLocked}}" class="sync-retry" bindtap="retryDraft">重试</button>
+    <button wx:if="{{draftSync.phase==='conflict' || menuLocked}}" class="sync-retry" bindtap="resolveDraftConflict">重新载入</button>
+  </view>
+</view>
+<image wx:if="{{flight}}" src="{{flight.image}}" class="favorite-flight" mode="aspectFill"/>
+<view wx:if="{{editing && !tip}}" class="sheet-backdrop {{editing.form==='purpose'?'purpose-backdrop':''}}" bindtap="dismissPurpose">
+  <view class="meal-sheet {{editing.form==='purpose'?'purpose-popover':''}}" catchtap="keepPanel">
+    <view wx:if="{{editing.form==='basket'}}" class="sheet-handle"></view>
+    <view wx:if="{{editing.form!=='basket'}}" class="row between"><view wx:if="{{editing.form==='purpose'}}" class="heading">切换餐单</view><view wx:else class="sheet-handle"></view><button wx:if="{{editing.form!=='purpose'}}" class="small" bindtap="cancel">关闭</button></view>
+    <view wx:if="{{editing.form==='purpose'}}">
+      <view class="chips"><button class="chip {{type==='next'?'active':''}}" data-type="next" bindtap="choosePurpose">下周饭</button><button class="chip {{type==='weekend'?'active':''}}" data-type="weekend" bindtap="choosePurpose">周末饭</button></view>
+      <view class="caption">{{currentRange}}</view>
+      <block wx:if="{{type==='weekend'}}">
+        <view class="chips"><button class="chip {{weekDay===period.sat?'active':''}}" data-value="{{period.sat}}" bindtap="chooseDay">周六</button><button class="chip {{weekDay===period.sun?'active':''}}" data-value="{{period.sun}}" bindtap="chooseDay">周日</button></view>
+        <view class="chips"><button wx:for="{{['早餐','午餐','晚餐']}}" wx:key="*this" class="chip {{weekMeal===item?'active':''}}" data-value="{{item}}" bindtap="chooseMeal">{{item}}</button></view>
+      </block>
+      <button wx:if="{{type==='weekend'}}" class="primary" bindtap="cancel">选这餐</button>
+    </view>
+    <view wx:if="{{editing.form==='basket'}}">
+      <view class="title">购物车 · {{total}} 道菜</view><view class="caption">{{status}} · 每菜3份</view>
+      <view class="empty" wx:if="{{!lines.length}}">先挑几道喜欢的菜吧。</view>
+      <view wx:for="{{lines}}" wx:key="id" class="divider row basket-entry">
+        <image class="basket-photo" src="{{item.image}}" mode="aspectFill"/><view class="grow"><view class="heading">{{item.name}}</view><view class="caption">3份 · {{item.category}}</view></view>
+        <button wx:if="{{!menuLocked && (hasDraft || submittedPlan.status==='draft')}}" class="text-action" data-id="{{item.id}}" bindtap="remove">取消</button>
+      </view>
+      <button wx:if="{{!menuLocked}}" class="primary" bindtap="basketSubmit" disabled="{{busy || !total || menuLocked}}">{{editingDraft?'重新提交菜单':actionLabel}}</button>
+      <button class="secondary" bindtap="review">查看完整菜单</button>
+      <button class="text-action" wx:if="{{hasDraft && submittedPlan.status!=='draft'}}" bindtap="basketDiscard">{{editingDraft?'取消修改，保留原菜单':'放下这一篮，保留原菜单'}}</button>
+    </view>
+    <view wx:if="{{editing.form==='dish'}}">
+      <image class="sheet-dish" src="{{editing.image}}" mode="aspectFill"/><view class="title">{{editing.name}}</view><view class="caption">每道菜固定3份</view>
+      <view class="chips"><button class="chip {{editing.spice==='不辣'?'active':''}}" data-key="spice" data-value="不辣" bindtap="value">不辣</button><button class="chip {{editing.spice==='少辣'?'active':''}}" data-key="spice" data-value="少辣" bindtap="value">少辣</button><button class="chip {{editing.spice==='辣'?'active':''}}" data-key="spice" data-value="辣" bindtap="value">辣</button></view>
+      <block wx:if="{{type==='weekend'}}">
+        <text class="label">哪天吃</text><view class="chips"><button class="chip {{editing.day===period.sat?'active':''}}" data-key="day" data-value="{{period.sat}}" bindtap="value">周六 {{period.sat}}</button><button class="chip {{editing.day===period.sun?'active':''}}" data-key="day" data-value="{{period.sun}}" bindtap="value">周日 {{period.sun}}</button></view>
+        <view class="chips"><button class="chip {{editing.meal==='早餐'?'active':''}}" data-key="meal" data-value="早餐" bindtap="value">早餐</button><button class="chip {{editing.meal==='午餐'?'active':''}}" data-key="meal" data-value="午餐" bindtap="value">午餐</button><button class="chip {{editing.meal==='晚餐'?'active':''}}" data-key="meal" data-value="晚餐" bindtap="value">晚餐</button></view>
+        <text class="label">用餐人数</text><input type="digit" data-key="people" value="{{editing.people}}" bindinput="field"></input>
+        <view class="chips"><button class="chip {{editing.fresh?'active':''}}" data-key="fresh" data-value="true" bindtap="value">需要现做</button><button class="chip {{!editing.fresh?'active':''}}" data-key="fresh" data-value="false" bindtap="value">可提前准备</button></view>
+      </block>
+      <text class="label">这次的口味备注</text><textarea data-key="note" value="{{editing.note}}" bindinput="field"></textarea>
+      <view class="caption">采购按固定3份折算，不再乘用餐人数；备注涉及食材变化时由大厨调整。</view><button class="primary" bindtap="save" disabled="{{busy || menuLocked}}">放进菜单</button>
+    </view>
+    <view wx:if="{{editing.form==='request'}}">
+      <view class="heading">想吃新菜</view><text class="label">菜名</text><input data-key="name" value="{{editing.name}}" bindinput="field"></input>
+      <text class="label">想怎么吃</text><textarea data-key="note" value="{{editing.note}}" bindinput="field"></textarea>
+      <button class="tip-link" data-title="新菜如何加入菜单" data-content="待补录请求不计入正式菜单。大厨补齐采购量后再选。" bindtap="tipInfo">新菜如何加入菜单？</button><button class="primary" bindtap="sendRequest">告诉大厨</button>
+    </view>
+  </view>
+</view>
+<view wx:if="{{chooseRole && !tip}}" class="sheet-backdrop identity-backdrop compact-identity" bindtap="cancelIdentity">
+  <view class="meal-sheet identity" catchtap="keepPanel">
+    <view class="row between"><view class="heading">切换身份</view><button wx:if="{{role}}" class="small" bindtap="cancelIdentity">关闭</button></view>
+    <button class="secondary" bindtap="pairSettings">两人共享设置</button>
+    <button class="role-card {{role==='guest'?'current-role':''}}" data-role="guest" bindtap="identity"><image src="/assets/solid-guest-coral.svg" class="role-icon"/><view class="role-copy"><text class="heading">点餐者</text><text class="caption">挑菜、提交菜单、写点评</text></view><text>{{role==='guest'?'当前':'切换'}}</text></button>
+    <button class="role-card {{role==='cook'?'current-role':''}}" data-role="cook" bindtap="identity"><image src="/assets/solid-cook-coral.svg" class="role-icon"/><view class="role-copy"><text class="heading">大厨</text><text class="caption">确认菜单、买菜、标记做好</text></view><text>{{role==='cook'?'当前':'切换'}}</text></button>
+  </view>
+</view>
+<view wx:if="{{tip}}" class="sheet-backdrop tip-backdrop" bindtap="tipDismiss">
+  <view class="meal-sheet tip-sheet" catchtap="keepPanel">
+    <view class="sheet-handle"></view><view class="heading">{{tip.title}}</view><view class="tip-copy">{{tip.content}}</view><button class="primary" bindtap="tipConfirm">{{tip.confirmText}}</button><button wx:if="{{tip.confirm}}" class="text-action" bindtap="tipDismiss">{{tip.cancelText||'暂不操作'}}</button>
+  </view>
+</view>
+</block>

@@ -1,0 +1,18 @@
+html,body,#phone,#bar,#screen,#screen>.page,.identity-backdrop{background:#fff}
+#phone{box-shadow:0 0 0 1px #f0f2f5}
+#screen::-webkit-scrollbar-thumb{background:#d9dfe7;border-color:#fff}
+nav{background:rgba(255,255,255,.87);box-shadow:0 8px 28px #25385112,inset 0 1px 1px #fff}
+nav .nav-lens{width:calc((100% - 12px)/var(--nav-count,3));background:linear-gradient(155deg,#ffffffeb,#e9f0fa9c)}
+.order-cart{background:rgba(255,255,255,.94);border-color:#e9edf2}
+.identity-backdrop{background:#fff}
+.v3-order .category-rail{background:#fff}
+#screen .brand-icon{object-fit:contain;width:38px;height:38px}
+#screen .page-top .brand-icon{width:34px;height:34px}
+#screen .v3-head{padding:13px 15px 8px}
+#layers .welcome-mark{object-fit:contain;width:80px;height:80px}
+#screen .purpose-line>div{min-width:0}
+#screen .plan-preview{cursor:default}
+#screen .rank-photo{object-fit:cover}
+#screen[data-page="v3-week"]>.v3-head,#screen[data-page="v3-shopping"]>.v3-head{border-bottom:0}
+@media(max-width:360px){#screen .brand-icon{width:31px;height:31px}}
+@media(prefers-reduced-transparency:reduce){nav,.order-cart{background:#fff}}

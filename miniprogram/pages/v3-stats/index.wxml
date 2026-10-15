@@ -1,0 +1,26 @@
+<page-meta page-style="{{!pageReady || editing || chooseRole || tip ? 'overflow:hidden;' : ''}}"/>
+<import src="../../templates/page-loading.wxml"/>
+<template wx:if="{{!pageReady}}" is="page-loading" data="{{loading:pageLoading,error:pageLoadError}}"/>
+<block wx:if="{{pageReady}}">
+<view wx:if="{{cookSync.phase==='error' || cookSync.phase==='conflict'}}" class="draft-sync-banner" aria-live="polite"><view class="draft-sync-copy"><text>制作进度尚未同步，已保留在本机</text><text class="caption">{{cookSync.error}}</text></view><button wx:if="{{cookSync.canRetry}}" class="sync-retry" bindtap="retryCook">重试</button><button wx:if="{{cookSync.phase==='conflict'}}" class="sync-retry" bindtap="resolveCookConflict">重新载入</button></view>
+<view wx:if="{{draftSync.phase==='error' || draftSync.phase==='conflict'}}" class="draft-sync-banner" aria-live="polite"><view class="draft-sync-copy"><text>选择尚未同步，已保留在本机</text><text class="caption">{{draftSync.error}}</text></view><button wx:if="{{draftSync.canRetry}}" class="sync-retry" bindtap="retryDraft">重试</button><button wx:if="{{draftSync.phase==='conflict'}}" class="sync-retry" bindtap="resolveDraftConflict">重新选择</button></view>
+<view class="week-compact-head stats-module-head"><view class="compact-top"><view class="compact-page-title">统计</view><button class="avatar-switch" bindtap="switchIdentity" aria-label="当前{{roleLabel}}身份，点击切换"><image src="/assets/rabbit-avatar.svg"/></button></view></view><view class="page stats-page">
+<view class="stats-section stats-cooking">
+<view class="stats-section-head"><view class="stats-section-title">做饭概况</view><image class="stats-section-icon" src="/assets/solid-cook-coral.svg"/></view>
+<view class="stats-totals"><view><text class="stat-value">{{libraryCount}}</text><text class="stat-label">道拿手菜</text></view><view><text class="stat-value">{{cookedKinds}}</text><text class="stat-label">道做过</text></view><view><text class="stat-value">{{cooked}}</text><text class="stat-label">次制作</text></view></view>
+<view class="caption stats-note" wx:if="{{libraryCount!==availableCount}}">含隐藏菜品 · {{availableCount}} 道展示中</view>
+<view class="stats-subheading" wx:if="{{mostCooked.length}}">常做的拿手菜</view>
+<view wx:for="{{mostCooked}}" wx:key="id" class="cook-rank"><text class="rank-number">{{item.rank}}</text><image class="rank-photo" src="{{item.image}}" mode="aspectFill"/><view class="grow"><view class="row between"><text class="heading">{{item.name}}</text><text class="rank-count">{{item.count}} 次</text></view><view class="rank-track"><view class="rank-fill" style="width:{{item.percent}}%"></view></view></view></view>
+<view class="stats-empty" wx:if="{{!mostCooked.length}}">标记「做好了」，这里就会记下一笔。</view>
+</view>
+<view class="stats-section stats-again">
+<view class="stats-section-head"><view class="stats-section-title">还想再吃</view><text class="stats-count">{{again}} 次想再吃</text></view>
+<view wx:for="{{top}}" wx:key="id" class="stats-favorite-row"><text class="heading">{{item.name}}</text><text class="rank-count">{{item.count}} 次</text></view>
+<view class="stats-empty" wx:if="{{!top.length}}">点评时选「下次还想吃」，喜欢的菜会留在这里。</view>
+</view>
+<view class="stats-section stats-comments">
+<view class="stats-section-head"><view class="stats-section-title">饭桌点评</view><text class="stats-count">{{feedback}} 条点评</text></view>
+<view wx:for="{{records}}" wx:key="id" class="stats-record"><view class="heading">{{item.name}}</view><view class="caption">{{item.date}} · {{item.result}} · {{item.amount}} 倍制作量</view><view class="quote" wx:if="{{item.note}}">{{item.note}}</view><view class="blue" wx:if="{{item.again}}">下次还想吃</view></view>
+<view class="stats-empty" wx:if="{{!records.length}}">吃完后留一句点评，慢慢记下每顿饭。</view>
+</view></view><view wx:if="{{chooseRole && !tip}}" class="sheet-backdrop identity-backdrop compact-identity" bindtap="cancelIdentity"><view class="meal-sheet identity" catchtap="keepPanel"><view class="row between"><view class="heading">切换身份</view><button wx:if="{{role}}" class="small" bindtap="cancelIdentity">关闭</button></view><button class="secondary" bindtap="pairSettings">两人共享设置</button><button class="role-card {{role==='guest'?'current-role':''}}" data-role="guest" bindtap="identity"><image src="/assets/solid-guest-coral.svg" class="role-icon"/><view class="role-copy"><text class="heading">点餐者</text><text class="caption">挑菜、提交菜单、写点评</text></view><text>{{role==='guest'?'当前':'切换'}}</text></button><button class="role-card {{role==='cook'?'current-role':''}}" data-role="cook" bindtap="identity"><image src="/assets/solid-cook-coral.svg" class="role-icon"/><view class="role-copy"><text class="heading">大厨</text><text class="caption">确认菜单、买菜、标记做好</text></view><text>{{role==='cook'?'当前':'切换'}}</text></button></view></view><view wx:if="{{tip}}" class="sheet-backdrop tip-backdrop" bindtap="tipDismiss"><view class="meal-sheet tip-sheet" catchtap="keepPanel"><view class="sheet-handle"></view><view class="heading">{{tip.title}}</view><view class="tip-copy">{{tip.content}}</view><button class="primary" bindtap="tipConfirm">{{tip.confirmText}}</button><button wx:if="{{tip.confirm}}" class="text-action" bindtap="tipDismiss">暂不操作</button></view></view>
+</block>

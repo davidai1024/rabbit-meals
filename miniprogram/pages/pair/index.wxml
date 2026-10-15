@@ -1,0 +1,53 @@
+<page-meta page-style="{{pageReady?'':'overflow:hidden;'}}"/>
+<import src="../../templates/page-loading.wxml"/>
+<template wx:if="{{!pageReady}}" is="page-loading" data="{{loading:pageLoading,error:pageLoadError}}"/>
+<block wx:if="{{pageReady}}">
+<view class="pair">
+ <view class="title">我们的小饭桌</view>
+ <view class="copy">一人创建，另一人输入邀请码加入。菜单、买菜进度和点评会同步。</view>
+ <view wx:if="{{error}}" class="error">{{error}}</view>
+ <block wx:if="{{unbound}}">
+  <view class="roles"><button data-role="cook" bindtap="role" class="{{role==='cook'?'active':''}}">我是大厨</button><button data-role="guest" bindtap="role" class="{{role==='guest'?'active':''}}">我是点餐者</button></view>
+  <button class="primary" bindtap="create" loading="{{busy}}" disabled="{{busy}}">创建我们的饭桌</button>
+  <view class="copy">已有饭桌？输入另一位提供的邀请码。</view>
+  <input placeholder="粘贴饭桌邀请码" value="{{code}}" bindinput="field" maxlength="24"/>
+  <button bindtap="join" disabled="{{busy||!code}}">加入饭桌</button>
+ </block>
+ <block wx:else>
+  <view class="copy">已加入 · {{members}} / 2 人</view>
+  <view wx:if="{{members<2}}"><view class="code">{{invite}}</view><button bindtap="copy">复制邀请码</button><view class="copy">让另一位打开体验版，在这里输入邀请码。</view></view>
+  <button class="primary" bindtap="next" disabled="{{busy}}">进入饭桌</button>
+  <button bindtap="refresh" disabled="{{busy}}">刷新成员状态</button>
+  <view wx:if="{{notificationEnabled}}" class="notification-tools">
+   <view class="test-title">饭桌提醒</view>
+   <view class="test-copy">对象提交菜单、写下点评时，可通过微信服务通知提醒大厨。</view>
+   <view class="test-copy">菜单提醒和点评提醒各订阅一次，可各收到一条。请在大厨本人手机上同意，之后可再次订阅。</view>
+   <view class="notification-row" wx:for="{{notificationRows}}" wx:key="kind">
+    <view class="notification-label">{{item.title}}</view><view class="notification-status">{{item.status}}</view>
+    <view wx:if="{{item.detail}}" class="notification-detail">{{item.detail}}</view>
+   </view>
+   <view wx:if="{{notificationNotice}}" class="reset-notice" aria-live="polite">{{notificationNotice}}</view>
+   <view wx:if="{{notificationError}}" class="notification-error" aria-live="polite">{{notificationError}}</view>
+   <button class="primary notification-button" bindtap="subscribeReminders" loading="{{notificationBusy}}" disabled="{{notificationBusy}}">订阅菜单和点评提醒</button>
+   <button wx:if="{{notificationPending}}" class="restore-button" bindtap="retryNotificationPreferences" loading="{{notificationBusy}}" disabled="{{notificationBusy}}">重试同步设置</button>
+   <button wx:if="{{!notificationOff}}" class="notification-close" bindtap="closeReminders" disabled="{{notificationBusy}}">关闭饭桌提醒</button>
+   <view class="test-copy">关闭仅停止本饭桌发送提醒。微信的订阅消息权限需在小程序设置中自行管理。</view>
+  </view>
+  <view wx:if="{{testToolsEnabled}}" class="test-tools">
+   <view class="test-title">测试工具</view>
+   <view class="test-copy">清空使用记录，从头测试点菜。保留菜品库和两人绑定。</view>
+   <view wx:if="{{resetNotice}}" class="reset-notice" aria-live="polite">{{resetNotice}}</view>
+   <block wx:if="{{pendingAction}}">
+    <view class="test-copy">上次操作还未确认完成，请重试。</view>
+    <button class="reset-button" bindtap="retryReset" disabled="{{busy}}" loading="{{busy&&!!resetAction}}">{{pendingAction==='restoreTestData'?'重试上次还原':'重试上次清空'}}</button>
+   </block>
+   <block wx:else>
+    <button class="reset-button" bindtap="reset" disabled="{{busy}}" loading="{{resetAction==='resetTestData'}}">清空测试数据</button>
+    <button wx:if="{{canRestore}}" class="restore-button" bindtap="restore" disabled="{{busy}}" loading="{{resetAction==='restoreTestData'}}">还原上次清空</button>
+    <view wx:if="{{canRestore}}" class="test-copy restore-copy">开始新的使用记录前，可以还原上次清空。</view>
+   </block>
+  </view>
+ </block>
+ <view class="copy">原来本机上的菜单保留在本机，共享饭桌从新菜单开始。</view>
+</view>
+</block>

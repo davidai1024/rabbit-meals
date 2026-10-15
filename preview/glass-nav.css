@@ -1,0 +1,21 @@
+/* Floating navigation — confined to the local preview. */
+:root{--dock-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+#phone{padding-bottom:120px}
+nav{bottom:var(--dock-bottom);width:min(432px,calc(100% - 32px));height:72px;padding:6px;gap:0;border:1px solid rgba(255,255,255,.94);border-radius:999px;background:rgba(247,249,252,.76);-webkit-backdrop-filter:blur(22px) saturate(1.65);backdrop-filter:blur(22px) saturate(1.65);box-shadow:0 10px 32px #24334b1a,0 2px 7px #24334b0c,inset 0 1px 1px #fff,inset 0 -1px 1px #8193ae26;isolation:isolate;overflow:visible;--light-x:50%}
+nav::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at var(--light-x) 0%,#ffffffd9,transparent 62%);pointer-events:none;z-index:-1}
+nav .nav-lens{position:absolute;left:6px;top:6px;width:calc((100% - 12px)/5);height:58px;border-radius:999px;pointer-events:none;background:linear-gradient(155deg,#ffffffc9,#d8e4f287);border:1px solid #ffffffc4;box-shadow:inset 0 1px 2px #fff,inset 0 -1px 2px #6e8ead1c,0 2px 5px #334d7710;transform:translateX(calc(var(--nav-index,0)*100%));transition:transform .36s cubic-bezier(.22,.8,.25,1);z-index:0}
+nav button{position:relative;z-index:1;min-width:0;min-height:58px;border-radius:999px;color:#4d5765;font-size:12px;font-weight:500;line-height:1.35;letter-spacing:.02em;gap:4px;transition:color .18s ease,transform .18s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+nav button img{width:23px;height:23px;opacity:.92;filter:brightness(.68)}
+nav button.active{color:#075dcc;font-weight:650}
+nav button.active img{opacity:1;filter:brightness(.65) sepia(.9) saturate(6) hue-rotate(177deg)}
+nav button:active{opacity:1;transform:scale(.94)}
+nav button:focus-visible{outline:2px solid #075dcc;outline-offset:-3px;background:#ffffff70}
+nav button.nav-arrive img{animation:nav-settle .32s ease-out}
+@keyframes nav-settle{0%{transform:scale(.9)}55%{transform:scale(1.1)}100%{transform:scale(1)}}
+.order-cart{bottom:calc(var(--dock-bottom) + 84px);width:min(432px,calc(100% - 32px))}
+#toast{bottom:calc(var(--dock-bottom) + 170px)}
+nav[inert]{visibility:hidden}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){nav{background:#f6f8fb}}
+@media(prefers-reduced-transparency:reduce){nav{background:#f6f8fb;-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media(prefers-contrast:more){nav{background:#fff;border-color:#667080}nav button{color:#293443}nav .nav-lens{background:#e2edff;border-color:#7f9cc8}}
+@media(prefers-reduced-motion:reduce){nav button,nav .nav-lens{transition:none}nav button.nav-arrive img{animation:none}nav button:active{transform:none}nav::before{background:linear-gradient(#ffffff90,transparent)}}

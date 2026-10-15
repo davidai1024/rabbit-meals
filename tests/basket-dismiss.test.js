@@ -1,0 +1,3 @@
+const test=require('node:test'),a=require('node:assert/strict'),{enhance}=require('../miniprogram/utils/swipe-menu');
+test('购物车点击外部关闭，内部不关闭且不改变已选内容',()=>{const q=enhance({data:{},cancel(){this.data.editing=null;}});q.data={editing:{form:'basket'},lines:[{id:'kept'}]};q.keepPanel();a.equal(q.data.editing.form,'basket');q.dismissPurpose();a.equal(q.data.editing,null);a.deepEqual(q.data.lines,[{id:'kept'}]);});
+test('遮罩继续关闭餐单，但不丢弃其他未保存表单',()=>{const q=enhance({data:{},cancel(){this.data.editing=null;}});for(const form of ['dish','request']){q.data.editing={form};q.dismissPurpose();a.equal(q.data.editing.form,form);}q.data.editing={form:'purpose'};q.dismissPurpose();a.equal(q.data.editing,null);});

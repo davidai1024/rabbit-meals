@@ -1,0 +1,49 @@
+{
+  "pages": [
+    "pages/v3-menu/index",
+    "pages/v3-week/index",
+    "pages/v3-shopping/index",
+    "pages/v3-stats/index",
+    "pages/v3-home/index",
+    "pages/v3-recipe/index",
+    "pages/v3-history/index",
+    "pages/pair/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "兔子吃饭了",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFFFFF"
+  },
+  "tabBar": {
+    "color": "#636366",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/v3-menu/index",
+        "text": "点菜"
+      },
+      {
+        "pagePath": "pages/v3-week/index",
+        "text": "菜单"
+      },
+      {
+        "pagePath": "pages/v3-shopping/index",
+        "text": "买菜"
+      },
+      {
+        "pagePath": "pages/v3-stats/index",
+        "text": "统计"
+      },
+      {
+        "pagePath": "pages/v3-home/index",
+        "text": "菜品库"
+      }
+    ],
+    "custom": true
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

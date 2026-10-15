@@ -1,0 +1,4 @@
+@import "../../compact-ui.wxss";@import "../../product-polish.wxss";
+.shopping-progress-head{display:flex;align-items:center;justify-content:space-between;gap:16rpx}
+.shopping-progress-copy{flex:1;min-width:0}.shopping-progress-copy .heading{font-size:29rpx;line-height:1.45}.shopping-progress-copy .caption{display:block;margin-top:4rpx}
+.shopping-simple .purchase-all{flex:none;width:auto;min-width:176rpx;min-height:80rpx;margin:0;padding:16rpx 20rpx;border:0;border-radius:20rpx;background:#c83f2e;color:#fff;font-size:27rpx;font-weight:600;line-height:1.5;white-space:nowrap}

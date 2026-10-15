@@ -1,0 +1,14 @@
+const test=require('node:test'),a=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
+test('滑卡分类独立点击，内容纵向滚动且原生卡片有触摸入口',()=>{
+ const config=JSON.parse(read('miniprogram/pages/v3-menu/index.json')),wxml=read('miniprogram/pages/v3-menu/index.wxml');
+ a.equal(config.disableScroll,true);a.match(wxml,/viewMode==='card'/);a.match(wxml,/viewMode==='list'/);a.match(wxml,/show-scrollbar="{{false}}"/);a.match(wxml,/<scroll-view wx:if="{{viewMode==='card'}}" class="browse-card-scroll" scroll-y="{{!editing && !chooseRole && !tip}}"/);a.match(wxml,/<scroll-view class="dish-scroll browse-list" scroll-y="{{!editing && !chooseRole && !tip}}"/);a.match(wxml,/<swiper /);a.match(wxml,/bindchange="carouselChange"/);a.match(wxml,/bindtap="category"/);
+});
+test('列表重绘保持滚动，分类改变回顶部，弹层锁定不改变已有位置',()=>{
+ let list={scrollTop:230,dataset:{scrollKey:'全部||next'}},screen={dataset:{page:'v3-menu',viewKey:'v3-menu||'},scrollTop:0,querySelector:s=>s==='.dish-scroll'?list:null,querySelectorAll:()=>[]};const layers={querySelector:()=>null,replaceChildren(){},append(){},querySelectorAll:()=>[]},phone={append(){},classList:{toggle(){}},querySelectorAll:()=>[]},other={};
+ const document={activeElement:{dataset:{}},querySelector:s=>s==='#screen'?screen:s==='#phone'?phone:other,createElement:()=>layers,addEventListener(){}};const context={document,window:{}};vm.runInNewContext(read('preview/ui-stability.js'),context);const ui=context.window.previewUI,saved=ui.capture();list.scrollTop=0;ui.sync(saved);a.equal(list.scrollTop,230);list.dataset.scrollKey='荤菜||next';ui.sync(saved);a.equal(list.scrollTop,0);screen.scrollTop=180;const position=ui.capture();ui.sync(position);a.equal(screen.scrollTop,180);context.window.currentPage={data:{view:'work'}};ui.sync(position);a.equal(screen.scrollTop,0);
+});
+
+test("列表无重复顶部分类，卡片横滑Tab且没有搜索筛选入口",()=>{const t=read("miniprogram/pages/v3-menu/index.wxml");a.match(t,/<scroll-view wx:if="{{viewMode==='card'}}" class="category-tabs-scroll" scroll-x="{{true}}"/);a.doesNotMatch(t,/bindtap="toggleSearch"|bindtap="openFilters"|bindinput="search"|搜索词|关键词/);a.match(t,/wx:for="{{categories}}"/);});
+
+test('已提交不会隐藏点菜视图，锁定与草稿恢复入口保持可见',()=>{const t=read('miniprogram/pages/v3-menu/index.wxml');a.doesNotMatch(t,/orderSummary|submitted-order|modifyingMenu/);a.match(t,/orderNotice\.visible/);a.match(t,/bindtap="viewOrderedMenu"/);a.match(t,/bindtap="cancelOrderEdit"/);a.equal((t.match(/bindtap="pickDish" disabled="{{busy \|\| menuLocked}}"/g)||[]).length,2);a.match(t,/draftSync\.phase==='conflict' \|\| menuLocked/);a.match(t,/bindtap="resolveDraftConflict"/);a.match(t,/wx:if="{{total \|\| draftSync\.phase==='error'/);a.doesNotMatch(t,/draftSync\.slow|同步中…/);a.match(t,/order-submission-note.*aria-live="polite"/);a.match(t,/tip\.cancelText\|\|'暂不操作'/);});

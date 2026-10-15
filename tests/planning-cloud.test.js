@@ -1,0 +1,12 @@
+const test=require('node:test'),a=require('node:assert/strict'),{createHandler}=require('../cloudfunctions/planningFamily/handler'),model=require('../cloudfunctions/planningFamily/planning');
+const {command,applyUpdate}=require('./helpers/cloud-update');
+function mock(){
+ const store={};let uid='a';
+ const collection=n=>({
+  doc:id=>({get:async()=>{if(!store[n]?.[id])throw Error('not exist');return {data:structuredClone(store[n][id])};},set:async({data})=>{store[n][id]=structuredClone(data);},update:async({data})=>applyUpdate(store[n][id],data)}),
+  where:q=>({limit:()=>({get:async()=>({data:Object.entries(store[n]).filter(([,v])=>v.code===q.code).map(([k,v])=>({...v,_id:k}))})})})
+ });
+ let lock=Promise.resolve();const db={command,collection,createCollection:async n=>{if(store[n])throw Error('already exist');store[n]={};},runTransaction:fn=>{const p=lock.then(()=>fn({collection}));lock=p.catch(()=>{});return p}};
+ return {store,as:v=>uid=v,cloud:{database:()=>db,getWXContext:()=>({OPENID:uid}),getTempFileURL:async()=>({fileList:[]})}};
+}
+test('两人共享：创建、加入、身份权限、提交确认与第三人隔离',async()=>{const x=mock(),h=createHandler(x.cloud);let r=await h({action:'get'});a.equal(r.unbound,true);r=await h({action:'create',data:{role:'guest'}});a.equal(r.state.recipes.filter(r=>!r.archived).length,8);const code=r.code;const p=model.period();const lines=['meat','veg'].flatMap(k=>r.state.recipes.filter(r=>r.kind===k&&!r.hidden).slice(0,3)).map(r=>({id:r.id,multiplier:1,spice:'不辣'}));r=await h({action:'selectDraft',data:{period:p,type:'next',lines,expectedRevision:r.revision,version:0}});a.equal(r.ok,true);r=await h({action:'submitMenu',data:{period:p,type:'next',expectedRevision:r.revision,version:1}});a.equal(r.ok,true);const submitted=r.revision;x.as('b');r=await h({action:'join',data:{code,role:'cook'}});a.equal(r.ok,true);a.equal(r.members,2);a.equal(model.getPlan(r.state,'next',p).lines.length,6);const stale=await h({action:'confirm',data:{period:p,type:'next',expectedRevision:submitted,version:2}});a.equal(stale.ok,false);r=await h({action:'confirm',data:{period:p,type:'next',expectedRevision:r.revision,version:2}});a.equal(r.ok,true);a.equal(model.getPlan(r.state,'next',p).status,'confirmed');x.as('c');a.equal((await h({action:'get'})).unbound,true);a.equal((await h({action:'join',data:{code}})).ok,false);x.as('a');r=await h({action:'get'});a.equal((await h({action:'hide',data:{id:lines[0].id,expectedRevision:r.revision}})).ok,false);a.equal(JSON.stringify(r).includes('"b"'),false);});

@@ -1,0 +1,37 @@
+@import "../../order-views.wxss";page{height:100vh;overflow:hidden}@import "../../compact-ui.wxss";@import "../../product-polish.wxss";page{height:100%;overflow:hidden}.browse-order.is-card,.browse-order.is-list{height:100%;width:100%;padding-bottom:calc(144rpx + 8px);box-sizing:border-box}.browse-order.has-cart-items{padding-bottom:calc(352rpx + 8px)}.browse-order .browse-head{flex:none;width:100%;padding:12rpx 24rpx 0;box-sizing:border-box}.product-top .compact-purpose{width:auto;min-width:0;padding:12rpx 18rpx}.top-actions{flex:none}.identity-trigger{min-width:0}.category-tabs-scroll{height:88rpx;width:100%}.category-tabs-track{display:flex;width:100%;min-width:0;height:88rpx;gap:0}.category-tabs-track .compact-tab{display:flex;flex:1;width:0;min-width:0;padding:12rpx 0;font-size:26rpx;box-sizing:border-box}.browse-order .browse-list-layout{height:0;flex:1;min-height:0;margin-top:8rpx}.browse-order .browse-rail{width:104rpx;padding-bottom:0;box-sizing:border-box}.browse-order .browse-list{width:0;flex:1;height:100%;padding:0 20rpx 12rpx;scroll-padding-bottom:0;box-sizing:border-box}.browse-order .browse-list-photo{width:144rpx;height:144rpx}.browse-row{gap:16rpx}.browse-row-copy{width:0;flex:1;min-width:0}.browse-row-name{font-size:28rpx;word-break:break-all}.browse-row-actions{width:100%;gap:8rpx}.browse-order .browse-list-pick{width:132rpx;min-width:132rpx;padding:0 8rpx;font-size:24rpx}.browse-order .browse-list-pick .pick-symbol{font-size:28rpx}.browse-row-actions .browse-favorite{width:88rpx;min-width:88rpx;margin:0}.browse-order .browse-card-scroll{height:0;flex:1;min-height:0;padding:8rpx 0 12rpx;box-sizing:border-box}.browse-carousel{height:100%;min-height:0}.browse-carousel .browse-card{display:flex;flex-direction:column;height:100%}.browse-carousel .browse-photo-frame{flex:1;height:0;min-height:0}.browse-info{flex:none;padding:16rpx 28rpx}.browse-info .browse-name{font-size:36rpx}.browse-info .browse-card-actions{margin-top:8rpx}.order-cart.swipe-cart.browse-cart{bottom:calc(128rpx + 8px);left:24rpx;right:24rpx;display:flex;flex-wrap:wrap;gap:8rpx 12rpx;padding:12rpx 20rpx;border-radius:28rpx;box-sizing:border-box}.browse-cart .selected-strip{flex:0 0 100%;width:100%;min-height:64rpx;height:64rpx;padding:0 0 8rpx;box-sizing:border-box}.browse-cart .selected-mini{width:48rpx;min-width:48rpx;height:48rpx;min-height:48rpx}.browse-cart .basket-link{flex:1;width:0;min-height:88rpx;box-sizing:border-box}.browse-cart .cart-button{flex:none;min-height:88rpx;margin:0;padding:16rpx 24rpx}.product-top{width:100%;box-sizing:border-box}.product-top .identity-trigger{width:192rpx;flex:none}.product-top .top-actions{width:320rpx;flex:none}.product-top .compact-purpose{width:224rpx;box-sizing:border-box}
+.product-top{display:flex;justify-content:space-between;align-items:center}.product-top .identity-trigger{margin:0;justify-content:flex-start}.product-top .top-actions{margin-left:auto;justify-content:flex-end}
+
+/* The list action stays aligned to the scroll viewport right edge. */
+.browse-order .browse-row{width:100%;min-width:0;align-items:flex-start;box-sizing:border-box}
+.browse-order .browse-row-copy{display:flex;flex-direction:column;flex:1;min-width:0;width:0}
+.browse-order .browse-row-actions{width:auto;min-width:0;align-self:stretch;display:flex;justify-content:flex-end;align-items:center;box-sizing:border-box}
+.browse-order .browse-row-actions .browse-favorite{flex:none;margin:0 auto 0 0}
+.browse-order .browse-row-actions .browse-list-pick{flex:none;width:144rpx;min-width:144rpx;max-width:144rpx;margin:0 0 0 auto;padding:0 8rpx;box-sizing:border-box}
+
+/* Only failed or conflicting draft writes need visible recovery space. */
+.browse-order.sync-visible{padding-bottom:calc(224rpx + 8px)}
+.browse-order.has-cart-items.sync-visible{padding-bottom:calc(408rpx + 8px)}
+.draft-sync{display:flex;align-items:center;justify-content:space-between;gap:12rpx;width:100%;min-height:44rpx;font-size:21rpx;line-height:1.4;color:#8a827b}
+.draft-sync text{flex:1;min-width:0}.draft-sync.sync-warning{color:#ad5835}
+.draft-sync .sync-retry{flex:none;width:auto;min-width:80rpx;min-height:44rpx;margin:0;padding:4rpx 12rpx;border:0;background:transparent;color:#b33c2d;font-size:23rpx;line-height:1.5;border-radius:12rpx}
+.browse-list-pick.selected{opacity:1}
+.browse-order .browse-list-pick.selected{background:#eef3ec;color:#596953;box-shadow:none}
+
+/* Existing orders stay a small hint while the picker remains the main view. */
+.order-notice,.editing-order-note{display:flex;align-items:center;justify-content:space-between;gap:12rpx;min-width:0;margin-top:12rpx;padding:8rpx 14rpx;border-radius:18rpx;background:#fff6ef;color:#936947;box-sizing:border-box}
+.order-notice>text,.editing-order-note>text{flex:1;min-width:0;font-size:22rpx;line-height:1.55;overflow-wrap:anywhere}
+.order-notice>button,.editing-order-note>button{display:flex;align-items:center;justify-content:center;flex:none;width:auto;min-width:0;min-height:44px;margin:0;padding:8rpx 12rpx;font-size:23rpx;line-height:1.5;color:#b64632;background:transparent;box-shadow:none;border:0;border-radius:12rpx}
+.order-notice.is-locked{background:#f2f4ee;color:#617055}
+.order-notice.is-locked>button{color:#637457}
+.editing-order-note{background:#fff7ed}
+.order-submission-note{margin-top:10rpx;padding:0 12rpx;font-size:22rpx;line-height:1.5;color:#647850;overflow-wrap:anywhere}
+.browse-order .browse-pick[disabled],.browse-order .browse-list-pick[disabled]{background:#eeece7;color:#979086;opacity:1}
+.browse-order .browse-pick,.browse-order .browse-list-pick{display:flex;align-items:center;justify-content:center}
+.browse-order .browse-list-pick{gap:4rpx}
+.browse-cart .cart-button{white-space:nowrap}
+@media(max-height:650px){.browse-order .browse-head{padding-top:4rpx}.category-tabs-scroll,.category-tabs-track{height:76rpx}.browse-info{padding:10rpx 22rpx}.browse-info .browse-name{font-size:31rpx}.browse-info .browse-tags text{font-size:20rpx}.browse-info .browse-card-actions{margin-top:4rpx}.order-notice,.editing-order-note{margin-top:6rpx;padding-top:0;padding-bottom:0}.order-notice>text,.editing-order-note>text{font-size:21rpx}.order-submission-note{margin-top:6rpx;font-size:21rpx}}
+@media(prefers-reduced-motion:reduce){.order-notice button,.editing-order-note button{transition:none;animation:none}}
+
+
+
+.tip-sheet>.text-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:12rpx 0 0;padding:12rpx 0;box-sizing:border-box}

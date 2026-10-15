@@ -1,0 +1,16 @@
+<template name="page-loading">
+  <view class="page-loading-shell" aria-live="polite">
+    <view class="page-loading-content">
+      <view class="page-loading-avatar"><image src="/assets/rabbit-avatar.svg" mode="aspectFit" aria-hidden="true"/></view>
+      <block wx:if="{{error}}">
+        <view class="page-loading-title">饭桌还没连上</view>
+        <view class="page-loading-error">{{error}}</view>
+        <button class="page-loading-retry" bindtap="retryPageLoad" loading="{{loading}}" disabled="{{loading}}">再试一次</button>
+      </block>
+      <block wx:else>
+        <view class="page-loading-title">兔子正在摆饭桌…</view>
+        <view class="page-loading-dots" aria-hidden="true"><view></view><view></view><view></view></view>
+      </block>
+    </view>
+  </view>
+</template>

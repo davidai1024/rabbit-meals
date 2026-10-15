@@ -1,0 +1,6 @@
+<view hidden="{{hidden}}" class="dock">
+ <view class="tab-track"><view class="tab-indicator" style="width:{{100/items.length}}%;transform:translateX({{selectedIndex*100}}%)"/></view>
+ <button wx:for="{{items}}" wx:key="page" class="tab {{selected===item.page?'selected':''}}" data-page="{{item.page}}" bindtap="go" hover-class="tab-pressed">
+  <view class="tab-icons"><image class="tab-icon gray {{selected===item.page?'inactive':''}}" src="/assets/solid-{{item.icon}}-gray.svg"/><image class="tab-icon coral {{selected===item.page?'active':''}}" src="/assets/solid-{{item.icon}}-coral.svg"/></view><text>{{item.label}}</text>
+ </button>
+</view>

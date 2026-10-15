@@ -1,0 +1,49 @@
+/* One viewport, one scroll surface, one coordinate space for floating controls. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;color-scheme:light}
+body{background:#edf1f6}
+#phone{position:relative;isolation:isolate;display:flex;flex-direction:column;width:min(468px,100%);height:100dvh;min-height:0;padding:0;margin:0 auto;background:var(--bg);overflow:hidden;box-shadow:0 0 80px #2739510b}
+#bar{flex:none;background:var(--bg);color:var(--muted);font-size:10px;line-height:1.5;padding:7px 12px;text-align:center;z-index:2}
+#back{flex:none;background:var(--surface);text-align:left;margin:0;padding:8px 20px;font-size:14px;border-bottom:1px solid var(--border)}
+#back[hidden]{display:none}
+#screen{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:auto;scrollbar-width:none;scrollbar-color:#c9d2df transparent;overflow-anchor:none;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));scroll-padding-bottom:110px;background:var(--bg)}
+#screen::-webkit-scrollbar,.meal-sheet::-webkit-scrollbar,.identity::-webkit-scrollbar{display:none;width:0;height:0}#screen::-webkit-scrollbar-thumb{background:#c9d2df;border:1px solid var(--bg);border-radius:8px}
+#screen>.page{min-height:100%;max-width:none}
+#screen[data-page="v3-menu"]{background:#fff;padding-bottom:calc(184px + env(safe-area-inset-bottom,0px))}
+#screen .v3-order{padding-bottom:20px;min-height:0}
+#screen .v3-menu-page{min-height:0}
+#layers{position:absolute;inset:0;pointer-events:none;z-index:20}
+#layers>*{pointer-events:auto}
+nav{position:absolute;left:16px;right:16px;transform:none;width:auto;max-width:none;bottom:var(--dock-bottom);z-index:30}
+.order-cart{position:absolute;left:16px;right:16px;transform:none;width:auto;bottom:calc(var(--dock-bottom) + 84px);background:rgba(249,251,255,.91);border-color:#ffffffd9;-webkit-backdrop-filter:blur(18px) saturate(1.25);backdrop-filter:blur(18px) saturate(1.25);box-shadow:0 6px 24px #20375812,inset 0 1px 0 #fff}
+#phone.modal-open #layers{z-index:100}#phone.modal-open .order-cart{visibility:hidden}
+#phone.modal-open #screen{overflow-y:hidden}
+.sheet-backdrop{position:absolute;inset:0;background:#1d30434d;padding:10px;overflow:hidden;align-items:flex-end;overscroll-behavior:none}
+.meal-sheet:not(.identity){width:100%;max-width:100%;max-height:calc(100% - 20px);background:var(--surface);border:1px solid #ffffffc9;border-radius:26px;padding:12px 20px max(24px,env(safe-area-inset-bottom,0px));box-shadow:0 16px 60px #1e32442e;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;scrollbar-gutter:auto;overflow-anchor:none;animation:panel-enter .16s ease-out}
+.meal-sheet>.row:first-child{position:sticky;top:-12px;background:var(--surface);z-index:2;padding:4px 0 10px;margin-bottom:8px}
+.sheet-handle{margin:0 auto;height:4px;width:30px;background:#cbd4df}
+.identity-backdrop{background:var(--bg);align-items:center;padding:20px}
+.identity{width:100%;max-width:420px;max-height:100%;padding:30px 20px 24px;overscroll-behavior:contain;background:var(--surface);border-radius:28px;overflow:auto;scrollbar-width:none;animation:panel-enter .16s ease-out}
+.is-continuing .meal-sheet{animation:none}
+#toast{position:fixed;bottom:calc(190px + env(safe-area-inset-bottom,0px));max-width:min(360px,calc(100% - 40px));background:#20334a;line-height:1.6;letter-spacing:.02em;pointer-events:none}
+@keyframes panel-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:active{opacity:.82;transition:none}
+input,textarea,select{max-width:100%;min-width:0}
+#screen input{height:auto}.dates>span{flex:1;text-align:center}
+.v3-foods .food-photo{width:clamp(76px,23vw,100px);height:clamp(76px,23vw,100px)}
+.v3-foods .food-info{min-height:100px}
+.star-icon,.role-icon,.brand-icon,.welcome-mark,.empty-plate{object-fit:contain}
+@media(max-width:360px){#bar{padding:5px 12px}.v3-foods .food-photo{width:76px;height:76px}.v3-foods .food-info{min-height:92px}.sheet-backdrop{padding:6px}.meal-sheet:not(.identity){padding-left:14px;padding-right:14px}.identity-backdrop{padding:12px}.identity{padding:24px 16px}}
+@media(max-height:580px){#bar{display:none}.identity-backdrop{padding:8px}.identity{padding:18px}.welcome-mark{width:44px;height:44px;margin-bottom:12px}.identity .welcome-note{margin-bottom:14px}.role-card{min-height:64px}.identity .privacy-note{margin-top:14px}}
+@media(prefers-reduced-transparency:reduce){.order-cart{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Order tab owns no outer scrollbar; only the right dish column scrolls. */
+#screen[data-page="v3-menu"]{overflow:hidden;padding-bottom:0;min-height:0}
+#screen .order-shell{height:100%;padding-bottom:calc(184px + env(safe-area-inset-bottom,0px))}
+#screen .order-shell>.v3-order{padding-bottom:0}
+#screen .dish-scroll{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;scrollbar-gutter:auto;overflow-anchor:none}
+#screen .dish-scroll::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+#phone.modal-open .dish-scroll{overflow-y:hidden}
+
+#screen .order-shell{padding-bottom:calc(255px + env(safe-area-inset-bottom,0px))}

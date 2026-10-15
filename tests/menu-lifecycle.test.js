@@ -1,5 +1,6 @@
 const test=require('node:test'),a=require('node:assert/strict'),m=require('../miniprogram/utils/planning'),life=require('../miniprogram/utils/menu-lifecycle'),flow=require('../miniprogram/utils/menu-actions');
-const period=m.period(new Date('2026-10-11T23:59:59+08:00'));
+// The planner follows the device's local calendar, so test local wall-clock boundaries.
+const period=m.period(new Date(2026,9,11,23,59,59));
 function setup(){const s=m.initial();s.recipes.forEach(r=>{r.purchaseVerified=true;r.meals=3;});return s;}
 const six=s=>s.recipes.map(r=>({id:r.id,multiplier:8}));
 function act(s,action,data={},role='guest'){return m.apply(s,role,action,{period,type:'next',...data},1234);}
@@ -7,5 +8,11 @@ test('下周固定3份且必须3荤3素，重复选菜和超额拒绝',()=>{let 
 test('修改草稿不影响已提交采购，取消修改可恢复，重提清确认且不动已购',()=>{let s=setup();s=act(s,'selectDraft',{lines:six(s)});s=act(s,'submitMenu');s=act(s,'confirm',{},'cook');const before=m.shopping(s,period);s=act(s,'startEdit');s=act(s,'selectDraft',{lines:six(s).slice(1)});a.equal(life.label(m.getPlan(s,'next',period)),'修改中 · 待重新提交');a.deepEqual(m.shopping(s,period),before);a.equal(m.getPlan(s,'next',period).status,'confirmed');s=act(s,'discardDraft');a.equal(life.editable(m.getPlan(s,'next',period)).lines.length,6);s=act(s,'startEdit');s=act(s,'selectDraft',{lines:six(s).map((l,i)=>i?l:{...l,spice:'少辣'})});s=act(s,'submitMenu');const p=m.getPlan(s,'next',period);a.equal(p.status,'submitted');a.equal(p.confirmedAt,undefined);a.equal(p.draftLines,undefined);a.equal(p.submittedAt,1234);});
 test('提交和确认幂等，过期版本及角色错误有失败反馈',()=>{let s=setup();s=act(s,'selectDraft',{lines:six(s)});s=act(s,'submitMenu');a.deepEqual(act(s,'submitMenu'),s);s=act(s,'confirm',{},'cook');a.deepEqual(act(s,'confirm',{},'cook'),s);a.throws(()=>act(s,'startEdit',{version:0}),/变更/);a.throws(()=>act(s,'selectDraft',{lines:six(s)},'cook'),/点餐/);});
 test('份数与配方总量对应，旧人数不推断为份数',()=>{let s=setup();s.recipes[0].meals=6;s.recipes[0].ingredients=[{name:'豆角',qty:600,unit:'克'}];s=act(s,'selectDraft',{lines:six(s)});s=act(s,'submitMenu');a.equal(m.getPlan(s,'next',period).lines[0].multiplier,.5);a.equal(m.shopping(s,period).items.find(x=>x.name==='豆角').need,300);a.equal(life.fixed([{id:'old'}],{recipes:[{id:'old',base:2,standard:2}]} )[0].multiplier,1);});
-test('周日结束切新周期待提交，旧周期与采购仍保留',()=>{let s=setup();s=act(s,'selectDraft',{lines:six(s)});s=act(s,'submitMenu');const next=m.period(new Date('2026-10-12T00:00:01+08:00'));a.notEqual(next.key,period.key);a.equal(m.getPlan(s,'next',next).status,'draft');a.equal(m.getPlan(s,'next',next).lines.length,0);a.equal(m.getPlan(s,'next',period).status,'submitted');a.equal(Object.keys(s.plans).length,1);});
+test('周日结束切新周期待提交，旧周期与采购仍保留',()=>{
+ let s=setup();s=act(s,'selectDraft',{lines:six(s)});s=act(s,'submitMenu');const shopping=m.shopping(s,period);
+ const monday=new Date(2026,9,12,0,0,1),next=m.period(monday);a.equal(monday.getDay(),1);
+ a.equal(period.key,'2026-10-10');a.equal(period.week,'2026-10-12');a.equal(next.key,'2026-10-17');a.equal(next.week,'2026-10-19');a.notEqual(next.key,period.key);
+ a.equal(m.getPlan(s,'next',next).status,'draft');a.equal(m.getPlan(s,'next',next).lines.length,0);a.equal(m.shopping(s,next).items.length,0);
+ a.equal(m.getPlan(s,'next',period).status,'submitted');a.equal(m.getPlan(s,'next',period).lines.length,6);a.deepEqual(m.shopping(s,period),shopping);a.equal(Object.keys(s.plans).length,1);
+});
 test('外层按钮从提交变修改，修改后待重提，大厨确认后禁重复动作',()=>{const p={status:'draft',lines:[]};a.equal(flow.ui(p,'guest').actionLabel,'提交菜单');p.status='submitted';a.equal(flow.ui(p,'guest').actionLabel,'修改菜单');a.equal(flow.ui(p,'cook').actionLabel,'确认菜单');p.draftLines=[];a.equal(flow.ui(p,'guest').actionLabel,'提交菜单');a.equal(flow.ui(p,'cook').stateLabel,'已提交 · 待大厨确认');p.status='confirmed';a.equal(flow.ui(p,'cook').actionLabel,'已确认');});
